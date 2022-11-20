@@ -13,7 +13,7 @@ export const getMembers = async () => {
 /**
  * gets a Member based on id provided
  */
-export const getMemberById = async (id: IMember["id"]) => {
+export const getMemberById = async (id: IMember["member_id"]) => {
   return execute<IMember>(MembersQueries.GetMemberById, [id]);
 };
 
@@ -23,7 +23,7 @@ export const getMemberById = async (id: IMember["id"]) => {
 export const insertMember = async (Member: IMember) => {
   const result = await execute<{ affectedRows: number }>(
     MembersQueries.AddMember,
-    [Member.name, Member.profileColor]
+    [Member.name, Member.profile_color]
   );
   return result.affectedRows > 0;
 };
@@ -34,7 +34,7 @@ export const insertMember = async (Member: IMember) => {
 export const updateMember = async (Member: IMember) => {
   const result = await execute<{ affectedRows: number }>(
     MembersQueries.UpdateMember,
-    [Member.name, Member.profileColor, Member.id]
+    [Member.name, Member.profile_color, Member.member_id]
   );
   return result.affectedRows > 0;
 };
@@ -42,7 +42,7 @@ export const updateMember = async (Member: IMember) => {
 /**
  * updates Member information based on the id provided
  */
-export const deleteMember = async (id: IMember["id"]) => {
+export const deleteMember = async (id: IMember["member_id"]) => {
   const result = await execute<{ affectedRows: number }>(
     MembersQueries.DeleteMember,
     [id]

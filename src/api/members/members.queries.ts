@@ -1,29 +1,29 @@
 export const MembersQueries = {
   GetMembers: `
     SELECT * FROM 
-        members`,
+      members`,
   GetMemberById: `
     SELECT * FROM 
-        members 
+      members 
     WHERE 
-        id = ?`,
+      member_id = ?`,
   AddMember: `
     INSERT INTO 
-        members(name, profileColor) 
+      members(name, profile_color) 
     VALUES (? , ?) `,
   UpdateMember: `
     UPDATE 
-        members 
+      members 
     SET 
-        name = ?, 
-        profileColor = ? 
+      name = ?, 
+      profile_color = ? 
     WHERE 
-        id = ?
+      member_id = ?
     `,
   DeleteMember: `
     DELETE FROM 
-        members
+      members
     WHERE 
-        id = ?
+      member_id = ?
   `,
 };

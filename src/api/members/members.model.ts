@@ -1,14 +1,14 @@
 import { Request } from "express";
 
 export interface IMember {
-  id: number;
+  member_id: number;
   name: string;
-  profileColor: string;
+  profile_color: string;
 }
 
-export interface IGetMembersReq extends Request {}
-export interface IGetMemberReq extends Request<{ id: IMember["id"] }> {}
+export interface IGetMemberReq extends Request<{ member_id: IMember["member_id"] }> {}
 export interface IAddMemberReq extends Request {}
 export interface IUpdateMemberReq
-  extends Request<{ id: IMember["id"] }, any, IMember> {}
-export interface IDeleteMemberReq extends Request<{ id: IMember["id"] }> {}
+  extends Request<{ member_id: IMember["member_id"] }, any, IMember> {}
+export interface IDeleteMemberReq
+  extends Request<{ member_id: IMember["member_id"] }> {}
