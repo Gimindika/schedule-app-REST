@@ -1,11 +1,32 @@
-import express, { Express, Request, Response } from "express";
+import bodyParser from "body-parser";
+import compression from "compression";
+import cors from "cors";
 import dotenv from "dotenv";
-import routes from "./routes";
+import express, { Express, Request, Response } from "express";
+import helmet from "helmet";
+import routes from "./api/routes";
+import * as MySQLConnector from "./api/utils/mysql.connector";
 
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT;
+
+// create database pool
+MySQLConnector.init();
+
+// compresses all the responses
+app.use(compression());
+
+// adding set of security middlewares
+app.use(helmet());
+
+// enable all CORS request
+app.use(cors());
+
+// parse incoming request body and append data to `req.body`
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/", routes);
 
