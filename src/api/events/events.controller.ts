@@ -17,10 +17,10 @@ export const getEvents: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const Events = await EventsService.getEvents();
+    const events = await EventsService.getEvents();
 
     res.status(200).json({
-      Events,
+      events,
     });
   } catch (error) {
     console.error(
@@ -45,10 +45,10 @@ export const getEventById: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const Event = await EventsService.getEventById(req.params.event_id);
+    const event = await EventsService.getEventById(req.params.event_id);
 
     res.status(200).json({
-      Event,
+      event,
     });
   } catch (error) {
     console.error(

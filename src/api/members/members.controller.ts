@@ -45,10 +45,10 @@ export const getMemberById: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const Member = await MembersService.getMemberById(req.params.member_id);
+    const member = await MembersService.getMemberById(req.params.member_id);
 
     res.status(200).json({
-      Member,
+      member,
     });
   } catch (error) {
     console.error(
