@@ -6,6 +6,7 @@ import express, { Express, Request, Response } from "express";
 import helmet from "helmet";
 import routes from "./api/routes";
 import * as MySQLConnector from "./api/utils/mysql.connector";
+import logger from "./api/middlewares/logger.middleware";
 
 dotenv.config();
 
@@ -23,6 +24,9 @@ app.use(helmet());
 
 // enable all CORS request
 app.use(cors());
+
+// add logger middleware
+app.use(logger);
 
 // parse incoming request body and append data to `req.body`
 app.use(bodyParser.json());
