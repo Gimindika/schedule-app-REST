@@ -1,9 +1,8 @@
 import { Request, RequestHandler, Response } from "express";
 import {
-  IGetSchedulesReq,
   IGetAssignedMemberReq,
+  IGetSchedulesReq,
   ISchedule,
-  IAssignedMember,
 } from "./schedules.model";
 import * as SchedulesService from "./schedules.service";
 /**
