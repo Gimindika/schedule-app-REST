@@ -1,12 +1,10 @@
 import { Router } from "express";
 import {
-  getBatches,
-  getSchedulesByBatchId,
   getAssignedMemberByScheduleId,
+  getSchedulesByBatchId,
 } from "./schedules.controller";
 
 const router = Router();
-router.route("/").get(getBatches);
 router.route("/:batch_id").get(getSchedulesByBatchId);
 router
   .route("/:batch_id/members/:schedule_id")

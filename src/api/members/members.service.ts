@@ -1,5 +1,4 @@
 import { execute } from "./../utils/mysql.connector";
-
 import { MembersQueries } from "./members.queries";
 import { IMember } from "./members.model";
 
@@ -20,10 +19,10 @@ export const getMemberById = async (id: IMember["member_id"]) => {
 /**
  * adds a new active Member record
  */
-export const insertMember = async (Member: IMember) => {
+export const insertMember = async (member: IMember) => {
   const result = await execute<{ affectedRows: number }>(
     MembersQueries.AddMember,
-    [Member.name, Member.profile_color]
+    [member.name, member.profile_color]
   );
   return result.affectedRows > 0;
 };
@@ -31,10 +30,10 @@ export const insertMember = async (Member: IMember) => {
 /**
  * updates Member information based on the id provided
  */
-export const updateMember = async (Member: IMember) => {
+export const updateMember = async (member: IMember) => {
   const result = await execute<{ affectedRows: number }>(
     MembersQueries.UpdateMember,
-    [Member.name, Member.profile_color, Member.member_id]
+    [member.name, member.profile_color, member.member_id]
   );
   return result.affectedRows > 0;
 };

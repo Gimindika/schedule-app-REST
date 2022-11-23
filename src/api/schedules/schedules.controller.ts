@@ -1,36 +1,10 @@
-import { Request, RequestHandler, Response } from "express";
+import { RequestHandler, Response } from "express";
 import {
   IGetAssignedMemberReq,
   IGetSchedulesReq,
   ISchedule,
 } from "./schedules.model";
 import * as SchedulesService from "./schedules.service";
-/**
- * Get active member records
- *
- * @param req Express Request
- * @param res Express Response
- */
-export const getBatches: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const batches = await SchedulesService.getBatches();
-
-    res.status(200).json({
-      batches,
-    });
-  } catch (error) {
-    console.error(
-      "[schedules.controller][getBatches][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when fetching batches",
-    });
-  }
-};
 
 /**
  * Get Schedules record based on batch_id provided
