@@ -1,17 +1,17 @@
 export const MembersQueries = {
-  GetMembers: `
+	GetMembers: `
     SELECT * FROM 
       members`,
-  GetMemberById: `
+	GetMemberById: `
     SELECT * FROM 
       members 
     WHERE 
       member_id = ?`,
-  AddMember: `
+	AddMember: `
     INSERT INTO 
       members(name, profile_color) 
     VALUES (? , ?) `,
-  UpdateMember: `
+	UpdateMember: `
     UPDATE 
       members 
     SET 
@@ -20,7 +20,7 @@ export const MembersQueries = {
     WHERE 
       member_id = ?
     `,
-  DeleteMember: `
+	DeleteMember: `
     DELETE FROM 
       members
     WHERE 
