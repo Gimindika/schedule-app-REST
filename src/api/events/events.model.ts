@@ -1,9 +1,19 @@
 import { Request } from "express";
 
+export enum days {
+  monday = "monday",
+  tuesday = "tuesday",
+  wednesday = "wednesday",
+  thursday = "thursday",
+  friday = "friday",
+  saturday = "saturday",
+  sunday = "sunday",
+}
+
 export interface IEvent {
   event_id: number;
   title: string;
-  recurrence: string;
+  recurrence: days;
 }
 
 export interface IGetEventReq

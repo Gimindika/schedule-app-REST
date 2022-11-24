@@ -1,4 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
+import { IEvent } from "../events/events.model";
+import { getEvents } from "../events/events.service";
+import { days, months, getDaysInMonth } from "../helpers/getDaysInMonth";
 import {
   IAddBatchReq,
   IDeleteBatchReq,
@@ -45,6 +48,37 @@ export const addBatch: RequestHandler = async (
 ) => {
   try {
     const result = await BatchesService.addBatch(req.body);
+
+    const events = await getEvents();
+
+    let insertSchedulesQuery = `
+        INSERT INTO schedules(schedule_date, event_id, batch_id) VALUES `;
+
+    events.map((event: IEvent, eventIndex: number) => {
+      const month = months[req.body.schedule_month];
+      const year = req.body.schedule_year;
+      const dates = getDaysInMonth(month, year, days[event.recurrence]);
+
+      dates.forEach((d, dateIndex: number) => {
+        const lastEntry =
+          dateIndex === dates.length - 1 && eventIndex === events.length - 1;
+        insertSchedulesQuery += ` ('${year}-${month.toString()}-${d}', ${
+          event.event_id
+        }, ${result}) ${lastEntry ? ";" : ","}`;
+      });
+    });
+
+    try {
+      await BatchesService.insertSchedules(insertSchedulesQuery);
+    } catch (insertScheduleError) {
+      if (insertScheduleError) {
+        BatchesService.deleteBatch(result);
+        return res.status(500).json({
+          message: "There was an error when inserting schedules for new batch",
+        });
+      }
+    }
+
     res.status(200).json({
       result,
     });

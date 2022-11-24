@@ -29,27 +29,33 @@ export const getSchedulesByBatchId: RequestHandler = async (
       req.params.batch_id
     );
 
-    schedules.map(async (schedule, index) => {
-      const members = await SchedulesService.getAssignedMemberByScheduleId(
-        schedule.schedule_id
-      );
+    if (schedules.length) {
+      schedules.map(async (schedule, index) => {
+        const members = await SchedulesService.getAssignedMemberByScheduleId(
+          schedule.schedule_id
+        );
 
-      results.push({
-        ...schedule,
-        members,
-      });
+        results.push({
+          ...schedule,
+          members,
+        });
 
-      /** 
+        /** 
         sending response inside map block codes due to 
         non blocking nature of JS executing response 
         before schedule mapping finished
        */
-      if (index === schedules.length - 1) {
-        return res.status(200).json({
-          schedules: results,
-        });
-      }
-    });
+        if (index === schedules.length - 1) {
+          return res.status(200).json({
+            schedules: results,
+          });
+        }
+      });
+    } else {
+      res.status(204).json({
+        schedules: [],
+      });
+    }
   } catch (error) {
     console.error(
       "[Schedules.controller][getSchedulesByBatchId][Error] ",

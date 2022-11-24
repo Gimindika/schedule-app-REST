@@ -1,6 +1,7 @@
 import { Request } from "express";
 import { IMember } from "../members/members.model";
 
+
 export interface ISchedule {
   batch_id: number;
   schedule_date: Date;

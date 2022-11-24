@@ -8,10 +8,20 @@ export const getBatches = async () => {
 };
 
 export const addBatch = async (batch: IBatch) => {
+  const result = await execute<{ insertId: number }>(BatchesQueries.AddBatch, [
+    batch.schedule_year,
+    batch.schedule_month,
+  ]);
+
+  return result.insertId;
+};
+
+export const insertSchedules = async (insertSchedulesQuery: string) => {
   const result = await execute<{ affectedRows: number }>(
-    BatchesQueries.AddBatch,
-    [batch.schedule_year, batch.schedule_month]
+    insertSchedulesQuery,
+    []
   );
+
   return result.affectedRows > 0;
 };
 
