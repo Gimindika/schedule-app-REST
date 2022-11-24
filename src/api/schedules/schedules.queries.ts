@@ -34,7 +34,7 @@ export const SchedulesQueries = {
       assignment(schedule_id, member_id)
     VALUES (?, ?)
   `,
-  RemoveMember: `
+  RemoveAssignedMember: `
     DELETE FROM
       assignment
     WHERE 

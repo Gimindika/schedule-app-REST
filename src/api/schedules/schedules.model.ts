@@ -26,22 +26,20 @@ export interface IUpdateScheduleReq
     ISchedule
   > {}
 export interface IDeleteScheduleReq
-  extends Request<
-    { schedule_id: ISchedule["schedule_id"] },
-    { schedule_id: ISchedule["schedule_id"] }
-  > {}
+  extends Request<{ schedule_id: ISchedule["schedule_id"] }> {}
 
 export interface IGetAssignedMemberReq
   extends Request<{ schedule_id: ISchedule["schedule_id"] }> {}
 export interface IAssignMemberReq
   extends Request<
-    { schedule_id: ISchedule["schedule_id"] },
-    ISchedule,
-    { member_id: IMember["member_id"] }
+    { schedule_id: ISchedule["schedule_id"]; member_id: IMember["member_id"] },
+    ISchedule
   > {}
 export interface IRemoveAssignedMemberReq
   extends Request<
-    { schedule_id: ISchedule["schedule_id"] },
-    ISchedule,
-    { member_id: IMember["member_id"] }
+    {
+      schedule_id: ISchedule["schedule_id"];
+      member_id: IMember["member_id"];
+    },
+    ISchedule
   > {}
