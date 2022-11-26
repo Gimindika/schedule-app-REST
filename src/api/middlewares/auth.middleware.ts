@@ -1,49 +1,63 @@
-// import { Request, Response, NextFunction } from 'express';
-// import { validateToken } from './../utils/jwt.utils';
+import { Request, Response, NextFunction } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
-// /**
-//  * middleware to check whether user has access to a specific endpoint
-//  *
-//  * @param allowedAccessTypes list of allowed access types of a specific endpoint
-//  */
-// export const authorize =
-// 	(allowedAccessTypes: string[]) =>
-// 	async (req: Request, res: Response, next: NextFunction) => {
-// 		try {
-// 			let jwt = req.headers.authorization;
+interface TokenPayload extends JwtPayload {
+	user_id: number;
+	user_email: string;
+	user_name: string;
+	user_access_types: string[];
+}
 
-// 			// verify request has token
-// 			if (!jwt) {
-// 				return res.status(401).json({ message: 'Invalid token ' });
-// 			}
+/**
+ * middleware to check whether user has access to a specific endpoint
+ *
+ * @param allowedAccessTypes list of allowed access types of a specific endpoint
+ */
+export const authorize =
+	(allowedAccessTypes: string[]) =>
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			let token = req.headers.authorization;
 
-// 			// remove Bearer if using Bearer Authorization mechanism
-// 			if (jwt.toLowerCase().startsWith('bearer')) {
-// 				jwt = jwt.slice('bearer'.length).trim();
-// 			}
+			// verify request has token
+			if (!token) {
+				return res.status(401).json({ message: 'Invalid token ' });
+			}
 
-// 			// verify token hasn't expired yet
-// 			const decodedToken = await validateToken(jwt);
+			// remove Bearer if using Bearer Authorization mechanism
+			if (token.toLowerCase().startsWith('bearer')) {
+				token = token.slice('bearer'.length).trim();
+			}
 
-// 			const hasAccessToEndpoint = allowedAccessTypes.some((allowedAccessType) =>
-// 				decodedToken.accessTypes.some(
-// 					(userAccessTypes) => userAccessTypes === allowedAccessType
-// 				)
-// 			);
+			// verify token hasn't expired yet
+			// const decodedToken = await validateToken(jwt);
+			const decodedToken: any =
+				process.env.JWT_SECRET_KEY &&
+				(await jwt.verify(token, process.env.JWT_SECRET_KEY));
 
-// 			if (!hasAccessToEndpoint) {
-// 				return res
-// 					.status(401)
-// 					.json({ message: 'No enough privileges to access endpoint' });
-// 			}
+			if (decodedToken) {
+				console.log('DECODE ', decodedToken);
+				const hasAccessToEndpoint = allowedAccessTypes.some(
+					(allowedAccessType) =>
+						decodedToken.user_access_types.some(
+							(userAccessType: string) => userAccessType === allowedAccessType
+						)
+				);
 
-// 			next();
-// 		} catch (error:any) {
-// 			if (error.name === 'TokenExpiredError') {
-// 				res.status(401).json({ message: 'Expired token' });
-// 				return;
-// 			}
+				if (!hasAccessToEndpoint) {
+					return res
+						.status(401)
+						.json({ message: 'No access to this endpoint' });
+				}
 
-// 			res.status(500).json({ message: 'Failed to authenticate user' });
-// 		}
-// 	};
+				next();
+			}
+		} catch (error: any) {
+			if (error.name === 'TokenExpiredError') {
+				res.status(401).json({ message: 'Expired token' });
+				return;
+			}
+
+			return res.status(500).json({ message: 'Failed to authenticate user' });
+		}
+	};
