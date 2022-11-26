@@ -1,12 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-interface TokenPayload extends JwtPayload {
-	user_id: number;
-	user_email: string;
-	user_name: string;
-	user_access_types: string[];
-}
 
 /**
  * middleware to check whether user has access to a specific endpoint
@@ -36,7 +30,6 @@ export const authorize =
 				(await jwt.verify(token, process.env.JWT_SECRET_KEY));
 
 			if (decodedToken) {
-				console.log('DECODE ', decodedToken);
 				const hasAccessToEndpoint = allowedAccessTypes.some(
 					(allowedAccessType) =>
 						decodedToken.user_access_types.some(
