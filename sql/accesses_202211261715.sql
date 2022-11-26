@@ -17,5 +17,13 @@ INSERT INTO schedule_app.accesses (access_type) VALUES
 	 ('addSchedule'),
 	 ('updateSchedule'),
 	 ('deleteSchedule'),
-	 ('assignMember'), 
-	 ('removeAssignedMember');
+	 ('assignMember'),
+	 ('removeAssignedMember'),
+	 ('getAssignedMember');
+INSERT INTO schedule_app.accesses (access_type) VALUES
+	 ('getAccessTypes'),
+	 ('addAccessType'),
+	 ('updateAccessType'),
+	 ('deleteAccessType'),
+	 ('updateUser'),
+	 ('deleteUser');
