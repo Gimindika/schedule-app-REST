@@ -1,22 +1,22 @@
 export const AuthQueries = {
 	GetUsers: `
-        SELECT (user_id, name, email) FROM users`,
+        SELECT (user_id, user_name, user_email) FROM users`,
 	GetUserByEmail: `
         SELECT * FROM 
             users 
         WHERE 
-        email = ?`,
+            user_email = ?`,
 	AddUser: `
         INSERT INTO 
-            users (name, password, email)
+            users (user_name, password, user_email)
         VALUES
             (?,?,?)`,
 	UpdateUser: `
         UPDATE
             users
         SET
-            name = ?,
-            email = ?,
+            user_name = ?,
+            user_email = ?,
         WHERE
             user_id = ?
     `,
@@ -28,6 +28,9 @@ export const AuthQueries = {
     `,
 	GetAccessTypes: `
         SELECT * FROM accesses
+    `,
+	GetAccessByUserId: `
+        SELECT (access_id) FROM user_access WHERE user_id = ?
     `,
 	AddAccessType: `
         INSERT INTO accesses(access_type) VALUES (?)
