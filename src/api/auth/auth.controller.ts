@@ -8,6 +8,7 @@ import {
 	ILogin,
 	IRegister,
 	IRevokeUserAccessReq,
+	IUpdateUserReq,
 } from './auth.model';
 import * as AuthService from './auth.service';
 import jwt from 'jsonwebtoken';
@@ -153,6 +154,37 @@ export const getAccessByUserId: RequestHandler = async (
 		);
 		res.status(500).json({
 			message: 'There was an error when fetching user access',
+		});
+	}
+};
+
+/**
+ * Updates existing user record
+ *
+ * @param req Express IUpdateUserReq
+ * @param res Express Response
+ */
+// @ts-ignore
+export const updateUser: RequestHandler = async (
+	req: IUpdateUserReq,
+	res: Response
+) => {
+	try {
+		const result = await AuthService.updateUser({
+			...req.body,
+			user_id: req.params.user_id,
+		});
+
+		res.status(200).json({
+			result,
+		});
+	} catch (error) {
+		console.error(
+			'[auth.controller][updateUser][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when updating user',
 		});
 	}
 };
