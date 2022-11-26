@@ -10,21 +10,41 @@ import {
 	IRevokeUserAccessReq,
 } from './auth.model';
 import * as AuthService from './auth.service';
+import jwt from 'jsonwebtoken';
 
 export const login: RequestHandler = async (req: ILogin, res: Response) => {
 	try {
-		const { user_email, password } = req.body;
+		const { user_email, password: inputPassword } = req.body;
 		const user = await AuthService.getUserByEmail(user_email);
 		// const secretKey = process.env.JWT_SECRET_KEY;
 
 		if (user.length) {
 			// hash password before comparison
-			if (bcrypt.compareSync(password, user[0].password)) {
-				console.log('LOGGED IN, GENERATE TOKEN ');
-				return res.status(200).json({
-					message: 'LOGGED IN, GENERATE TOKEN ',
+			const { password, user_id, user_email, user_name } = user[0];
+			if (bcrypt.compareSync(inputPassword, password)) {
+				// fetch user accesses
+				const user_access_types_res = await AuthService.getAccessByUserId(
+					user_id
+				);
+				const user_access_types = user_access_types_res.map((uat) => {
+					return uat.access_type;
 				});
 				// generate token
+				const tokenPayload = {
+					user_id,
+					user_email,
+					user_name,
+					user_access_types,
+				};
+				const token =
+					process.env.JWT_SECRET_KEY &&
+					jwt.sign(tokenPayload, process.env.JWT_SECRET_KEY, {
+						expiresIn: '1d',
+					});
+
+				return res.status(200).json({
+					token,
+				});
 			} else {
 				// return wrong pass error
 				return res.status(403).json({

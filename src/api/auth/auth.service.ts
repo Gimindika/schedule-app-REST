@@ -21,7 +21,7 @@ export const getUserByEmail = async (user_email: IUser['user_email']) => {
  * get user's access
  */
 export const getAccessByUserId = async (user_id: IUser['user_id']) => {
-	return execute<IUser>(AuthQueries.GetAccessByUserId, [user_id]);
+	return execute<IAccessType[]>(AuthQueries.GetAccessByUserId, [user_id]);
 };
 
 export const insertDefaultAccess = async (insertDefaultAccessQuery: string) => {

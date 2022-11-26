@@ -30,7 +30,11 @@ export const AuthQueries = {
         SELECT * FROM accesses
     `,
 	GetAccessByUserId: `
-        SELECT (access_id) FROM user_access WHERE user_id = ?
+        SELECT (access_type) FROM 
+            user_access 
+        INNER JOIN accesses ON
+            user_access.access_id = accesses.access_id
+        WHERE user_id = ?
     `,
 	AddAccessType: `
         INSERT INTO accesses(access_type) VALUES (?)
