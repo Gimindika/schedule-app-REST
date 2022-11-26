@@ -1,6 +1,6 @@
 import { execute } from '../utils/mysql.connector';
 
-import { IUser, IAccessType } from './auth.model';
+import { IAccessType } from './auth.model';
 import { AuthQueries } from './auth.queries';
 
 /**

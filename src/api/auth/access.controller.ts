@@ -1,5 +1,5 @@
 import { Request, RequestHandler, Response } from 'express';
-import * as AuthService from './access.service';
+import * as AccessService from './access.service';
 import {
 	IAddAccessTypeReq,
 	IDeleteAccessTypeReq,
@@ -16,7 +16,7 @@ export const getAccessTypes: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const accessTypes = await AuthService.getAccessTypes();
+		const accessTypes = await AccessService.getAccessTypes();
 
 		res.status(200).json({
 			accessTypes,
@@ -43,7 +43,7 @@ export const addAccessType: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const result = await AuthService.addAccessType(req.body);
+		const result = await AccessService.addAccessType(req.body);
 		res.status(200).json({
 			result,
 		});
@@ -70,7 +70,7 @@ export const updateAccessType: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const result = await AuthService.updateAccessType({
+		const result = await AccessService.updateAccessType({
 			...req.body,
 			access_id: req.params.access_id,
 		});
@@ -101,7 +101,7 @@ export const deleteAccessType: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const result = await AuthService.deleteAccessType(req.params.access_id);
+		const result = await AccessService.deleteAccessType(req.params.access_id);
 
 		res.status(200).json({
 			result,

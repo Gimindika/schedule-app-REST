@@ -5,11 +5,20 @@ import {
 	getAccessTypes,
 	updateAccessType,
 } from './access.controller';
+import { authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
-router.route('/').get(getAccessTypes);
-router.route('/').post(addAccessType);
-router.route('/:batch_id').patch(updateAccessType);
-router.route('/:batch_id').delete(deleteAccessType);
+router
+	.route('/')
+	.get(authorize(['getAccessTypes', 'allAccess']), getAccessTypes);
+router
+	.route('/')
+	.post(authorize(['addAccessType', 'allAccess']), addAccessType);
+router
+	.route('/:batch_id')
+	.patch(authorize(['updateAccessType', 'allAccess']), updateAccessType);
+router
+	.route('/:batch_id')
+	.delete(authorize(['deleteAccessType', 'allAccess']), deleteAccessType);
 
 export default router;
