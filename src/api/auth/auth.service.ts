@@ -88,3 +88,11 @@ export const revokeUserAccess = async (
 	);
 	return result.affectedRows > 0;
 };
+
+export const revokeAllAccesses = async (user_id: IUser['user_id']) => {
+	const result = await execute<{ affectedRows: number }>(
+		AuthQueries.RevokeAllAccesses,
+		[user_id]
+	);
+	return result.affectedRows > 0;
+};

@@ -56,4 +56,10 @@ export const AuthQueries = {
         AND
             access_id = ?
     `,
+	RevokeAllAccesses: `
+        DELETE FROM 
+            user_access
+        WHERE
+            user_id = ?
+    `,
 };

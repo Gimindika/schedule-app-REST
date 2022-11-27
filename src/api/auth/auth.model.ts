@@ -1,6 +1,7 @@
 import { Request } from 'express';
 
 export const DEFAULT_ACCESSES = [10, 14, 18, 19];
+export const ACCESS_TYPE_ALL = 1;
 
 export interface IAccessType {
 	access_id: number;
@@ -52,4 +53,8 @@ export interface IRevokeUserAccessReq
 	extends Request<{
 		user_id: IUser['user_id'];
 		access_id: IAccessType['access_id'];
+	}> {}
+export interface IGrantAllAccessReq
+	extends Request<{
+		user_id: IUser['user_id'];
 	}> {}
