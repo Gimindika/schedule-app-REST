@@ -1,9 +1,12 @@
 import bcrypt from 'bcrypt';
 import { RequestHandler, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import {
+	ACCESS_TYPE_ALL,
 	DEFAULT_ACCESSES,
 	IDeleteUserReq,
 	IGetUserAccessReq,
+	IGrantAllAccessReq,
 	IGrantUserAccessReq,
 	ILogin,
 	IRegister,
@@ -11,7 +14,6 @@ import {
 	IUpdateUserReq,
 } from './auth.model';
 import * as AuthService from './auth.service';
-import jwt from 'jsonwebtoken';
 
 export const login: RequestHandler = async (req: ILogin, res: Response) => {
 	try {
@@ -271,6 +273,46 @@ export const revokeUserAccess: RequestHandler = async (
 		);
 		res.status(500).json({
 			message: 'There was an error when revoking access from user',
+		});
+	}
+};
+
+/**
+ * grant all access to a user
+ *
+ * @param req Express IGrantAllAccessReq
+ * @param res Express Response
+ */
+// @ts-ignore
+export const grantAllAccess: RequestHandler = async (
+	req: IGrantAllAccessReq,
+	res: Response
+) => {
+	try {
+		const { user_id } = req.params;
+		const resultRevokeAll = await AuthService.revokeAllAccesses(user_id);
+
+		if (resultRevokeAll) {
+			const result = await AuthService.grantUserAccess(
+				user_id,
+				ACCESS_TYPE_ALL
+			);
+
+			return res.status(200).json({
+				result,
+			});
+		}
+
+		return res.status(500).json({
+			message: 'There was an error when granting access',
+		});
+	} catch (error) {
+		console.error(
+			'[auth.controller][grantUserAccess][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when granting access',
 		});
 	}
 };

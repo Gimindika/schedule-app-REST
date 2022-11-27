@@ -26,4 +26,7 @@ INSERT INTO schedule_app.accesses (access_type) VALUES
 	 ('updateAccessType'),
 	 ('deleteAccessType'),
 	 ('updateUser'),
-	 ('deleteUser');
+	 ('deleteUser'),
+	 ('getUserAccess'),
+	 ('grantAccess'),
+	 ('revokeAccess');
