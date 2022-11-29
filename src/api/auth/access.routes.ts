@@ -15,10 +15,10 @@ router
 	.route('/')
 	.post(authorize(['addAccessType', 'allAccess']), addAccessType);
 router
-	.route('/:batch_id')
+	.route('/:access_id')
 	.patch(authorize(['updateAccessType', 'allAccess']), updateAccessType);
 router
-	.route('/:batch_id')
+	.route('/:access_id')
 	.delete(authorize(['deleteAccessType', 'allAccess']), deleteAccessType);
 
 export default router;
