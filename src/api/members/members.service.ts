@@ -20,11 +20,11 @@ export const getMemberById = async (id: IMember['member_id']) => {
  * adds a new active Member record
  */
 export const insertMember = async (member: IMember) => {
-	const result = await execute<{ affectedRows: number }>(
-		MembersQueries.AddMember,
-		[member.name, member.profile_color]
-	);
-	return result.affectedRows > 0;
+	const result = await execute<{ insertId: number }>(MembersQueries.AddMember, [
+		member.name,
+		member.profile_color,
+	]);
+	return result.insertId;
 };
 
 /**

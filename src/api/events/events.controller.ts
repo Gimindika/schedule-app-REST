@@ -1,11 +1,11 @@
-import { Request, RequestHandler, Response } from "express";
+import { Request, RequestHandler, Response } from 'express';
 import {
-  IAddEventReq,
-  IDeleteEventReq,
-  IGetEventReq,
-  IUpdateEventReq,
-} from "./events.model";
-import * as EventsService from "./events.service";
+	IAddEventReq,
+	IDeleteEventReq,
+	IGetEventReq,
+	IUpdateEventReq,
+} from './events.model';
+import * as EventsService from './events.service';
 /**
  * Get active Event records
  *
@@ -13,24 +13,27 @@ import * as EventsService from "./events.service";
  * @param res Express Response
  */
 export const getEvents: RequestHandler = async (
-  req: Request,
-  res: Response
+	req: Request,
+	res: Response
 ) => {
-  try {
-    const events = await EventsService.getEvents();
-
-    res.status(200).json({
-      events,
-    });
-  } catch (error) {
-    console.error(
-      "[Events.controller][getEvents][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when fetching Events",
-    });
-  }
+	try {
+		const events = await EventsService.getEvents();
+		if (events.length) {
+			return res.status(200).json({
+				data: events,
+			});
+		} else {
+			return res.status(204).json({});
+		}
+	} catch (error) {
+		console.error(
+			'[Events.controller][getEvents][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when fetching Events',
+		});
+	}
 };
 
 /**
@@ -41,24 +44,24 @@ export const getEvents: RequestHandler = async (
  */
 // @ts-ignore
 export const getEventById: RequestHandler = async (
-  req: IGetEventReq,
-  res: Response
+	req: IGetEventReq,
+	res: Response
 ) => {
-  try {
-    const event = await EventsService.getEventById(req.params.event_id);
+	try {
+		const event = await EventsService.getEventById(req.params.event_id);
 
-    res.status(200).json({
-      event,
-    });
-  } catch (error) {
-    console.error(
-      "[Events.controller][getEventById][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when fetching Event",
-    });
-  }
+		res.status(200).json({
+			data: event,
+		});
+	} catch (error) {
+		console.error(
+			'[Events.controller][getEventById][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when fetching Event',
+		});
+	}
 };
 
 /**
@@ -68,23 +71,26 @@ export const getEventById: RequestHandler = async (
  * @param res Express Response
  */
 export const addEvent: RequestHandler = async (
-  req: IAddEventReq,
-  res: Response
+	req: IAddEventReq,
+	res: Response
 ) => {
-  try {
-    const result = await EventsService.insertEvent(req.body);
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[Events.controller][addEvent][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when adding new Event",
-    });
-  }
+	try {
+		const event_id = await EventsService.insertEvent(req.body);
+		return res.status(201).json({
+			data: {
+				...req.body,
+				event_id,
+			},
+		});
+	} catch (error) {
+		console.error(
+			'[Events.controller][addEvent][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when adding new Event',
+		});
+	}
 };
 
 /**
@@ -95,27 +101,31 @@ export const addEvent: RequestHandler = async (
  */
 // @ts-ignore
 export const updateEventById: RequestHandler = async (
-  req: IUpdateEventReq,
-  res: Response
+	req: IUpdateEventReq,
+	res: Response
 ) => {
-  try {
-    const result = await EventsService.updateEvent({
-      ...req.body,
-      event_id: req.params.event_id,
-    });
+	try {
+		const { event_id } = req.params;
+		await EventsService.updateEvent({
+			...req.body,
+			event_id,
+		});
 
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[Events.controller][updateEventById][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when updating Event",
-    });
-  }
+		return res.status(200).json({
+			data: {
+				...req.body,
+				event_id,
+			},
+		});
+	} catch (error) {
+		console.error(
+			'[Events.controller][updateEventById][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when updating Event',
+		});
+	}
 };
 
 /**
@@ -126,22 +136,20 @@ export const updateEventById: RequestHandler = async (
  */
 // @ts-ignore
 export const deleteEventById: RequestHandler = async (
-  req: IDeleteEventReq,
-  res: Response
+	req: IDeleteEventReq,
+	res: Response
 ) => {
-  try {
-    const result = await EventsService.deleteEvent(req.params.event_id);
+	try {
+		await EventsService.deleteEvent(req.params.event_id);
 
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[Events.controller][deleteEventById][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when deleting Event",
-    });
-  }
+		res.status(204).json({});
+	} catch (error) {
+		console.error(
+			'[Events.controller][deleteEventById][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when deleting Event',
+		});
+	}
 };

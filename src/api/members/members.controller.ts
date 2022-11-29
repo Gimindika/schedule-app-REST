@@ -1,11 +1,11 @@
-import { Request, RequestHandler, Response } from "express";
+import { Request, RequestHandler, Response } from 'express';
 import {
-  IAddMemberReq,
-  IDeleteMemberReq,
-  IGetMemberReq,
-  IUpdateMemberReq,
-} from "./members.model";
-import * as MembersService from "./members.service";
+	IAddMemberReq,
+	IDeleteMemberReq,
+	IGetMemberReq,
+	IUpdateMemberReq,
+} from './members.model';
+import * as MembersService from './members.service';
 /**
  * Get active member records
  *
@@ -13,24 +13,28 @@ import * as MembersService from "./members.service";
  * @param res Express Response
  */
 export const getMembers: RequestHandler = async (
-  req: Request,
-  res: Response
+	req: Request,
+	res: Response
 ) => {
-  try {
-    const members = await MembersService.getMembers();
+	try {
+		const members = await MembersService.getMembers();
 
-    res.status(200).json({
-      members,
-    });
-  } catch (error) {
-    console.error(
-      "[members.controller][getMembers][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when fetching members",
-    });
-  }
+		if (members.length) {
+			return res.status(200).json({
+				data: members,
+			});
+		} else {
+			return res.status(204).json({});
+		}
+	} catch (error) {
+		console.error(
+			'[members.controller][getMembers][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when fetching members',
+		});
+	}
 };
 
 /**
@@ -41,24 +45,24 @@ export const getMembers: RequestHandler = async (
  */
 // @ts-ignore
 export const getMemberById: RequestHandler = async (
-  req: IGetMemberReq,
-  res: Response
+	req: IGetMemberReq,
+	res: Response
 ) => {
-  try {
-    const member = await MembersService.getMemberById(req.params.member_id);
+	try {
+		const member = await MembersService.getMemberById(req.params.member_id);
 
-    res.status(200).json({
-      member,
-    });
-  } catch (error) {
-    console.error(
-      "[Members.controller][getMemberById][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when fetching Member",
-    });
-  }
+		res.status(200).json({
+			data: member,
+		});
+	} catch (error) {
+		console.error(
+			'[Members.controller][getMemberById][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when fetching Member',
+		});
+	}
 };
 
 /**
@@ -68,23 +72,26 @@ export const getMemberById: RequestHandler = async (
  * @param res Express Response
  */
 export const addMember: RequestHandler = async (
-  req: IAddMemberReq,
-  res: Response
+	req: IAddMemberReq,
+	res: Response
 ) => {
-  try {
-    const result = await MembersService.insertMember(req.body);
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[Members.controller][addMember][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when adding new Member",
-    });
-  }
+	try {
+		const member_id = await MembersService.insertMember(req.body);
+		res.status(201).json({
+			data: {
+				...req.body,
+				member_id,
+			},
+		});
+	} catch (error) {
+		console.error(
+			'[Members.controller][addMember][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when adding new Member',
+		});
+	}
 };
 
 /**
@@ -95,27 +102,32 @@ export const addMember: RequestHandler = async (
  */
 // @ts-ignore
 export const updateMemberById: RequestHandler = async (
-  req: IUpdateMemberReq,
-  res: Response
+	req: IUpdateMemberReq,
+	res: Response
 ) => {
-  try {
-    const result = await MembersService.updateMember({
-      ...req.body,
-      member_id: req.params.member_id,
-    });
+	try {
+		const { member_id } = req.params;
 
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[Members.controller][updateMemberById][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when updating Member",
-    });
-  }
+		await MembersService.updateMember({
+			...req.body,
+			member_id,
+		});
+
+		res.status(200).json({
+			data: {
+				...req.body,
+				member_id,
+			},
+		});
+	} catch (error) {
+		console.error(
+			'[Members.controller][updateMemberById][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when updating Member',
+		});
+	}
 };
 
 /**
@@ -126,22 +138,22 @@ export const updateMemberById: RequestHandler = async (
  */
 // @ts-ignore
 export const deleteMemberById: RequestHandler = async (
-  req: IDeleteMemberReq,
-  res: Response
+	req: IDeleteMemberReq,
+	res: Response
 ) => {
-  try {
-    const result = await MembersService.deleteMember(req.params.member_id);
+	try {
+		const { member_id } = req.params;
 
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[Members.controller][deleteMemberById][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when deleting Member",
-    });
-  }
+		await MembersService.deleteMember(member_id);
+
+		res.status(204).json({});
+	} catch (error) {
+		console.error(
+			'[Members.controller][deleteMemberById][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when deleting Member',
+		});
+	}
 };

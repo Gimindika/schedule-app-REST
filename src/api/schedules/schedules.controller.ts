@@ -1,15 +1,15 @@
-import { RequestHandler, Response } from "express";
+import { RequestHandler, Response } from 'express';
 import {
-  IAddScheduleReq,
-  IAssignMemberReq,
-  IDeleteScheduleReq,
-  IGetAssignedMemberReq,
-  IGetSchedulesReq,
-  IRemoveAssignedMemberReq,
-  ISchedule,
-  IUpdateScheduleReq,
-} from "./schedules.model";
-import * as SchedulesService from "./schedules.service";
+	IAddScheduleReq,
+	IAssignMemberReq,
+	IDeleteScheduleReq,
+	IGetAssignedMemberReq,
+	IGetSchedulesReq,
+	IRemoveAssignedMemberReq,
+	ISchedule,
+	IUpdateScheduleReq,
+} from './schedules.model';
+import * as SchedulesService from './schedules.service';
 
 /**
  * Get Schedules record based on batch_id provided
@@ -19,52 +19,51 @@ import * as SchedulesService from "./schedules.service";
  */
 // @ts-ignore
 export const getSchedulesByBatchId: RequestHandler = async (
-  req: IGetSchedulesReq,
-  res: Response
+	req: IGetSchedulesReq,
+	res: Response
 ) => {
-  try {
-    let results: ISchedule[] = [];
+	try {
+		const { batch_id } = req.params;
 
-    const schedules = await SchedulesService.getSchedulesByBatchId(
-      req.params.batch_id
-    );
+		let results: ISchedule[] = [];
 
-    if (schedules.length) {
-      schedules.map(async (schedule, index) => {
-        const members = await SchedulesService.getAssignedMemberByScheduleId(
-          schedule.schedule_id
-        );
+		const schedules = await SchedulesService.getSchedulesByBatchId(batch_id);
 
-        results.push({
-          ...schedule,
-          members,
-        });
+		if (schedules.length) {
+			schedules.map(async (schedule, index) => {
+				const members = await SchedulesService.getAssignedMemberByScheduleId(
+					schedule.schedule_id
+				);
 
-        /** 
+				results.push({
+					...schedule,
+					members,
+				});
+
+				/** 
         sending response inside map block codes due to 
         non blocking nature of JS executing response 
         before schedule mapping finished
        */
-        if (index === schedules.length - 1) {
-          return res.status(200).json({
-            schedules: results,
-          });
-        }
-      });
-    } else {
-      res.status(204).json({
-        schedules: [],
-      });
-    }
-  } catch (error) {
-    console.error(
-      "[Schedules.controller][getSchedulesByBatchId][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when fetching Schedules",
-    });
-  }
+				if (index === schedules.length - 1) {
+					// TODO: Sort data
+					return res.status(200).json({
+						data: results,
+					});
+				}
+			});
+		} else {
+			res.status(204).json({});
+		}
+	} catch (error) {
+		console.error(
+			'[Schedules.controller][getSchedulesByBatchId][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when fetching Schedules',
+		});
+	}
 };
 
 /**
@@ -74,23 +73,23 @@ export const getSchedulesByBatchId: RequestHandler = async (
  * @param res Express Response
  */
 export const addSchedule: RequestHandler = async (
-  req: IAddScheduleReq,
-  res: Response
+	req: IAddScheduleReq,
+	res: Response
 ) => {
-  try {
-    const result = await SchedulesService.addSchedule(req.body);
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[schedules.controller][addSchedule][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when adding new Schedule",
-    });
-  }
+	try {
+		const result = await SchedulesService.addSchedule(req.body);
+		res.status(201).json({
+			data: result,
+		});
+	} catch (error) {
+		console.error(
+			'[schedules.controller][addSchedule][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when adding new Schedule',
+		});
+	}
 };
 
 /**
@@ -101,27 +100,31 @@ export const addSchedule: RequestHandler = async (
  */
 // @ts-ignore
 export const updateSchedule: RequestHandler = async (
-  req: IUpdateScheduleReq,
-  res: Response
+	req: IUpdateScheduleReq,
+	res: Response
 ) => {
-  try {
-    const result = await SchedulesService.updateSchedule({
-      ...req.body,
-      schedule_id: req.params.schedule_id,
-    });
+	try {
+		const { schedule_id } = req.params;
+		await SchedulesService.updateSchedule({
+			...req.body,
+			schedule_id,
+		});
 
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[schedules.controller][updateSchedule][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when updating schedule",
-    });
-  }
+		res.status(200).json({
+			data: {
+				...req.body,
+				schedule_id,
+			},
+		});
+	} catch (error) {
+		console.error(
+			'[schedules.controller][updateSchedule][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when updating schedule',
+		});
+	}
 };
 
 /**
@@ -132,26 +135,24 @@ export const updateSchedule: RequestHandler = async (
  */
 // @ts-ignore
 export const deleteSchedule: RequestHandler = async (
-  req: IDeleteScheduleReq,
-  res: Response
+	req: IDeleteScheduleReq,
+	res: Response
 ) => {
-  try {
-    const result = await SchedulesService.deleteSchedule(
-      req.params.schedule_id
-    );
+	try {
+		const { schedule_id } = req.params;
 
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[schedules.controller][deleteSchedule][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when deleting schedule",
-    });
-  }
+		await SchedulesService.deleteSchedule(schedule_id);
+
+		res.status(204).json({});
+	} catch (error) {
+		console.error(
+			'[schedules.controller][deleteSchedule][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when deleting schedule',
+		});
+	}
 };
 
 /**
@@ -162,26 +163,32 @@ export const deleteSchedule: RequestHandler = async (
  */
 // @ts-ignore
 export const getAssignedMemberByScheduleId: RequestHandler = async (
-  req: IGetAssignedMemberReq,
-  res: Response
+	req: IGetAssignedMemberReq,
+	res: Response
 ) => {
-  try {
-    const members = await SchedulesService.getAssignedMemberByScheduleId(
-      req.params.schedule_id
-    );
+	try {
+		const { schedule_id } = req.params;
 
-    res.status(200).json({
-      members,
-    });
-  } catch (error) {
-    console.error(
-      "[Schedules.controller][getAssignedMemberByScheduleId][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when fetching Assigned Members",
-    });
-  }
+		const members = await SchedulesService.getAssignedMemberByScheduleId(
+			schedule_id
+		);
+
+		if (members.length) {
+			return res.status(200).json({
+				data: members,
+			});
+		} else {
+			return res.status(204).json({});
+		}
+	} catch (error) {
+		console.error(
+			'[Schedules.controller][getAssignedMemberByScheduleId][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when fetching Assigned Members',
+		});
+	}
 };
 
 /**
@@ -192,27 +199,26 @@ export const getAssignedMemberByScheduleId: RequestHandler = async (
  */
 // @ts-ignore
 export const assignMemberToSchedule: RequestHandler = async (
-  req: IAssignMemberReq,
-  res: Response
+	req: IAssignMemberReq,
+	res: Response
 ) => {
-  try {
-    const result = await SchedulesService.assignMemberToSchedule(
-      req.params.schedule_id,
-      req.params.member_id
-    );
+	try {
+		const { schedule_id, member_id } = req.params;
 
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[schedules.controller][assignMemberToSchedule][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when assigning member",
-    });
-  }
+		await SchedulesService.assignMemberToSchedule(schedule_id, member_id);
+
+		res.status(201).json({
+			data: { schedule_id, member_id },
+		});
+	} catch (error) {
+		console.error(
+			'[schedules.controller][assignMemberToSchedule][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when assigning member',
+		});
+	}
 };
 
 /**
@@ -223,25 +229,22 @@ export const assignMemberToSchedule: RequestHandler = async (
  */
 // @ts-ignore
 export const removeAssignedMember: RequestHandler = async (
-  req: IRemoveAssignedMemberReq,
-  res: Response
+	req: IRemoveAssignedMemberReq,
+	res: Response
 ) => {
-  try {
-    const result = await SchedulesService.removeAssignedMember(
-      req.params.schedule_id,
-      req.params.member_id
-    );
+	try {
+		const { schedule_id, member_id } = req.params;
 
-    res.status(200).json({
-      result,
-    });
-  } catch (error) {
-    console.error(
-      "[schedules.controller][removeAssignedMember][Error] ",
-      typeof error === "object" ? JSON.stringify(error) : error
-    );
-    res.status(500).json({
-      message: "There was an error when removing assigned member",
-    });
-  }
+		await SchedulesService.removeAssignedMember(schedule_id, member_id);
+
+		res.status(204).json({});
+	} catch (error) {
+		console.error(
+			'[schedules.controller][removeAssignedMember][Error] ',
+			typeof error === 'object' ? JSON.stringify(error) : error
+		);
+		res.status(500).json({
+			message: 'There was an error when removing assigned member',
+		});
+	}
 };
