@@ -10,6 +10,7 @@ import {
 	IUpdateScheduleReq,
 } from './schedules.model';
 import * as SchedulesService from './schedules.service';
+import * as EventsService from '../events/events.service';
 
 /**
  * Get Schedules record based on batch_id provided
@@ -29,16 +30,29 @@ export const getSchedulesByBatchId: RequestHandler = async (
 
 		const schedules = await SchedulesService.getSchedulesByBatchId(batch_id);
 
+		const events = await EventsService.getEvents();
+
 		if (schedules.length) {
 			schedules.map(async (schedule, index) => {
 				const members = await SchedulesService.getAssignedMemberByScheduleId(
 					schedule.schedule_id
 				);
 
-				results.push({
+				let scheduleObj: any = {
 					...schedule,
 					members,
+				};
+
+				events.forEach((e) => {
+					if (e.event_id === schedule.event_id) {
+						scheduleObj = {
+							...scheduleObj,
+							event: e,
+						};
+					}
 				});
+
+				results.push(scheduleObj);
 
 				/** 
         sending response inside map block codes due to 
@@ -46,9 +60,15 @@ export const getSchedulesByBatchId: RequestHandler = async (
         before schedule mapping finished
        */
 				if (index === schedules.length - 1) {
-					// TODO: Sort data
+					// Sort schedule by data & event_id
+					const sortedResults = results.sort(
+						(objA, objB) =>
+							objA.schedule_date.getTime() - objB.schedule_date.getTime() ||
+							objA.event_id - objB.event_id
+					);
+
 					return res.status(200).json({
-						data: results,
+						data: sortedResults,
 					});
 				}
 			});
