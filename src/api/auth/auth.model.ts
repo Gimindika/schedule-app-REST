@@ -1,5 +1,7 @@
 import { Request } from 'express';
 
+// set default access types to 10, 14, 18, 19
+// 10(getBatches), 14(getSchedules), 18(assignMember) , 19(removeAssignedMember)
 export const DEFAULT_ACCESSES = [10, 14, 18, 19];
 export const ACCESS_TYPE_ALL = 1;
 

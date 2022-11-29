@@ -19,7 +19,6 @@ export const login: RequestHandler = async (req: ILogin, res: Response) => {
 	try {
 		const { user_email, password: inputPassword } = req.body;
 		const user = await AuthService.getUserByEmail(user_email);
-		// const secretKey = process.env.JWT_SECRET_KEY;
 
 		if (user.length) {
 			// hash password before comparison
@@ -76,11 +75,12 @@ export const register: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const { user_email, password } = req.body;
+		console.log(req.body);
+		const { user_email, password, user_name } = req.body;
 		const userFound = await AuthService.getUserByEmail(user_email);
 		const saltRounds = process.env.BCRYPT_SALTROUNDS || '10';
 
-		if (userFound[0].user_email) {
+		if (userFound[0]?.user_email) {
 			// return error email already taken
 			return res.status(401).json({
 				error: 'Email has already taken',
@@ -93,8 +93,6 @@ export const register: RequestHandler = async (
 				password: hashedPassword,
 			});
 
-			// set default access types to 10, 14, 18, 19
-			// 10(getBatches), 14(getSchedules), 18(assignMember) , 19(removeAssignedMember)
 			let insertDefaultAccessQuery = `INSERT INTO user_access(user_id, access_id) VALUES `;
 			DEFAULT_ACCESSES.map((access, index) => {
 				insertDefaultAccessQuery += ` (${userResultId} , ${access}) ${
@@ -114,9 +112,12 @@ export const register: RequestHandler = async (
 				}
 			}
 
-			return res.status(200).json({
-				// user_id
-				message: 'done',
+			return res.status(201).json({
+				data: {
+					user_id: userResultId,
+					user_email,
+					user_name,
+				},
 			});
 		}
 	} catch (error) {
@@ -146,9 +147,13 @@ export const getAccessByUserId: RequestHandler = async (
 		const { user_id } = req.params;
 		const user_access = await AuthService.getAccessByUserId(user_id);
 
-		res.status(200).json({
-			user_access,
-		});
+		if (user_access.length) {
+			return res.status(200).json({
+				data: user_access,
+			});
+		} else {
+			return res.status(204).json({});
+		}
 	} catch (error) {
 		console.error(
 			'[auth.controller][getAccessByUserId][Error] ',
@@ -172,13 +177,18 @@ export const updateUser: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const result = await AuthService.updateUser({
+		const { user_id } = req.params;
+
+		await AuthService.updateUser({
 			...req.body,
-			user_id: req.params.user_id,
+			user_id,
 		});
 
-		res.status(200).json({
-			result,
+		return res.status(200).json({
+			data: {
+				...req.body,
+				user_id,
+			},
 		});
 	} catch (error) {
 		console.error(
@@ -203,11 +213,9 @@ export const deleteUser: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const result = await AuthService.deleteUser(req.params.user_id);
+		await AuthService.deleteUser(req.params.user_id);
 
-		res.status(200).json({
-			result,
-		});
+		return res.status(204).json({});
 	} catch (error) {
 		console.error(
 			'[auth.controller][deleteUser][Error] ',
@@ -234,8 +242,11 @@ export const grantUserAccess: RequestHandler = async (
 		const { access_id, user_id } = req.params;
 		const result = await AuthService.grantUserAccess(user_id, access_id);
 
-		res.status(200).json({
-			result,
+		return res.status(200).json({
+			data: {
+				user_id,
+				access_id,
+			},
 		});
 	} catch (error) {
 		console.error(
@@ -261,11 +272,9 @@ export const revokeUserAccess: RequestHandler = async (
 ) => {
 	try {
 		const { access_id, user_id } = req.params;
-		const result = await AuthService.revokeUserAccess(user_id, access_id);
+		await AuthService.revokeUserAccess(user_id, access_id);
 
-		res.status(200).json({
-			result,
-		});
+		res.status(204).json({});
 	} catch (error) {
 		console.error(
 			'[auth.controller][revokeUserAccess][Error] ',
@@ -293,13 +302,10 @@ export const grantAllAccess: RequestHandler = async (
 		const resultRevokeAll = await AuthService.revokeAllAccesses(user_id);
 
 		if (resultRevokeAll) {
-			const result = await AuthService.grantUserAccess(
-				user_id,
-				ACCESS_TYPE_ALL
-			);
+			await AuthService.grantUserAccess(user_id, ACCESS_TYPE_ALL);
 
-			return res.status(200).json({
-				result,
+			return res.status(201).json({
+				data: { user_id, access_id: ACCESS_TYPE_ALL },
 			});
 		}
 

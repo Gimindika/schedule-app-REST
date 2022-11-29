@@ -36,5 +36,5 @@ router
 // grantAllAccess
 router
 	.route('/:user_id/all-access')
-	.post(authorize(['grantAccess', 'allAccess']), revokeUserAccess);
+	.post(authorize(['grantAccess', 'allAccess']), grantAllAccess);
 export default router;
