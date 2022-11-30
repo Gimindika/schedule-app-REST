@@ -14,7 +14,7 @@ export const getEvents = async () => {
  * gets a Event based on id provided
  */
 export const getEventById = async (id: IEvent['event_id']) => {
-	return execute<IEvent>(EventsQueries.GetEventById, [id]);
+	return execute<IEvent[]>(EventsQueries.GetEventById, [id]);
 };
 
 /**

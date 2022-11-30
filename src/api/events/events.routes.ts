@@ -12,7 +12,7 @@ const router = Router();
 router.route('/').get(authorize(['getEvents', 'allAccess']), getEvents);
 router
 	.route('/:event_id')
-	.get(authorize(['getMembers', 'allAccess']), getEventById);
+	.get(authorize(['getEvents', 'allAccess']), getEventById);
 router.route('/').post(authorize(['addEvents', 'allAccess']), addEvent);
 router
 	.route('/:event_id')

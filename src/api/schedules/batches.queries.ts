@@ -1,12 +1,12 @@
 export const BatchesQueries = {
-  GetBatches: `
+	GetBatches: `
       SELECT * FROM 
         batches`,
-  AddBatch: `
+	AddBatch: `
       INSERT INTO 
         batches(schedule_year, schedule_month)
       VALUES(?,?) `,
-  UpdateBatch: `
+	UpdateBatch: `
       UPDATE 
         batches 
       SET 
@@ -14,9 +14,14 @@ export const BatchesQueries = {
         schedule_month = ? 
       WHERE 
         batch_id = ?`,
-  DeleteBatch: `
+	DeleteBatch: `
       DELETE FROM
         batches
+      WHERE
+        batch_id = ?`,
+	ClearSchedules: `
+      DELETE FROM
+        schedules
       WHERE
         batch_id = ?`,
 };

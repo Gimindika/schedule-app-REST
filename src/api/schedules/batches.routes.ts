@@ -14,6 +14,7 @@ router
 	.route('/:batch_id')
 	.get(authorize(['getSchedules', 'allAccess']), getSchedulesByBatchId);
 router.route('/').post(authorize(['addBatch', 'allAccess']), addBatch);
+// TODO: Update schedules under batch_id when updating schedule_month AND/OR schedule_year
 router
 	.route('/:batch_id')
 	.patch(authorize(['updateBatch', 'allAccess']), updateBatchById);

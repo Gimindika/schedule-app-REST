@@ -4,10 +4,43 @@ import { getEvents } from '../events/events.service';
 import { days, getDaysInMonth, months } from '../helpers/getDaysInMonth';
 import {
 	IAddBatchReq,
+	IBatch,
 	IDeleteBatchReq,
 	IUpdateBatchReq,
 } from './batches.model';
 import * as BatchesService from './batches.service';
+
+const generateSchedulesInBatch = async (batch: IBatch) => {
+	const events = await getEvents();
+
+	let insertSchedulesQuery = `
+        INSERT INTO schedules(schedule_date, event_id, batch_id) VALUES `;
+
+	events.map((event: IEvent, eventIndex: number) => {
+		const month = months[batch.schedule_month];
+		const year = batch.schedule_year;
+		const dates = getDaysInMonth(month, year, days[event.recurrence]);
+
+		dates.forEach((d, dateIndex: number) => {
+			const lastEntry =
+				dateIndex === dates.length - 1 && eventIndex === events.length - 1;
+			insertSchedulesQuery += ` ('${year}-${month.toString()}-${d}', ${
+				event.event_id
+			}, ${batch.batch_id}) ${lastEntry ? ';' : ','}`;
+		});
+	});
+
+	try {
+		await BatchesService.insertSchedules(insertSchedulesQuery);
+		return true;
+	} catch (insertScheduleError) {
+		if (insertScheduleError) {
+			BatchesService.deleteBatch(batch.batch_id);
+			console.log('There was an error when inserting schedules for new batch');
+			return false;
+		}
+	}
+};
 
 /**
  * Get active batches records
@@ -54,39 +87,21 @@ export const addBatch: RequestHandler = async (
 		const { schedule_month, schedule_year } = req.body;
 		const batch_id = await BatchesService.addBatch(req.body);
 
-		const events = await getEvents();
+		const generaateScheduleResult = await generateSchedulesInBatch({
+			batch_id,
+			schedule_month,
+			schedule_year,
+		});
 
-		let insertSchedulesQuery = `
-        INSERT INTO schedules(schedule_date, event_id, batch_id) VALUES `;
-
-		events.map((event: IEvent, eventIndex: number) => {
-			const month = months[schedule_month];
-			const year = schedule_year;
-			const dates = getDaysInMonth(month, year, days[event.recurrence]);
-
-			dates.forEach((d, dateIndex: number) => {
-				const lastEntry =
-					dateIndex === dates.length - 1 && eventIndex === events.length - 1;
-				insertSchedulesQuery += ` ('${year}-${month.toString()}-${d}', ${
-					event.event_id
-				}, ${batch_id}) ${lastEntry ? ';' : ','}`;
+		if (generaateScheduleResult) {
+			return res.status(201).json({
+				data: { batch_id, schedule_month, schedule_year },
 			});
-		});
-
-		try {
-			await BatchesService.insertSchedules(insertSchedulesQuery);
-		} catch (insertScheduleError) {
-			if (insertScheduleError) {
-				BatchesService.deleteBatch(batch_id);
-				return res.status(500).json({
-					message: 'There was an error when inserting schedules for new batch',
-				});
-			}
+		} else {
+			return res.status(500).json({
+				message: 'There was an error when inserting schedules for new batch',
+			});
 		}
-
-		res.status(201).json({
-			data: { batch_id, schedule_month, schedule_year },
-		});
 	} catch (error) {
 		console.error(
 			'[schedule.controller][addBatch][Error] ',
@@ -110,17 +125,32 @@ export const updateBatchById: RequestHandler = async (
 	res: Response
 ) => {
 	try {
+		const { batch_id } = req.params;
+		const { schedule_month, schedule_year } = req.body;
 		await BatchesService.updateBatch({
 			...req.body,
-			batch_id: req.params.batch_id,
+			batch_id,
 		});
 
-		res.status(200).json({
-			data: {
-				...req.body,
-				batch_id: req.params.batch_id,
-			},
+		// Clear current schedules under batch
+		await BatchesService.clearSchedules(batch_id);
+
+		// Generate new schedules for updated batch
+		const generaateScheduleResult = await generateSchedulesInBatch({
+			batch_id,
+			schedule_month,
+			schedule_year,
 		});
+
+		if (generaateScheduleResult) {
+			return res.status(200).json({
+				data: { batch_id, schedule_month, schedule_year },
+			});
+		} else {
+			return res.status(500).json({
+				message: 'There was an error when inserting schedules for new batch',
+			});
+		}
 	} catch (error) {
 		console.error(
 			'[schedule.controller][updateBatchById][Error] ',

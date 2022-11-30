@@ -50,9 +50,13 @@ export const getEventById: RequestHandler = async (
 	try {
 		const event = await EventsService.getEventById(req.params.event_id);
 
-		res.status(200).json({
-			data: event,
-		});
+		if (event.length) {
+			return res.status(200).json({
+				data: event,
+			});
+		} else {
+			return res.status(204).json({});
+		}
 	} catch (error) {
 		console.error(
 			'[Events.controller][getEventById][Error] ',

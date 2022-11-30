@@ -44,8 +44,11 @@ export const addAccessType: RequestHandler = async (
 ) => {
 	try {
 		const result = await AccessService.addAccessType(req.body);
-		res.status(200).json({
-			result,
+		return res.status(201).json({
+			data: {
+				...req.body,
+				access_id: result,
+			},
 		});
 	} catch (error) {
 		console.error(
@@ -70,13 +73,17 @@ export const updateAccessType: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const result = await AccessService.updateAccessType({
+		const { access_id } = req.params;
+		await AccessService.updateAccessType({
 			...req.body,
-			access_id: req.params.access_id,
+			access_id,
 		});
 
 		res.status(200).json({
-			result,
+			data: {
+				...req.body,
+				access_id,
+			},
 		});
 	} catch (error) {
 		console.error(
@@ -101,11 +108,9 @@ export const deleteAccessType: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const result = await AccessService.deleteAccessType(req.params.access_id);
+		await AccessService.deleteAccessType(req.params.access_id);
 
-		res.status(200).json({
-			result,
-		});
+		res.status(204).json({});
 	} catch (error) {
 		console.error(
 			'[access.controller][deleteAccessType][Error] ',

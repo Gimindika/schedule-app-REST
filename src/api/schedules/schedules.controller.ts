@@ -97,9 +97,9 @@ export const addSchedule: RequestHandler = async (
 	res: Response
 ) => {
 	try {
-		const result = await SchedulesService.addSchedule(req.body);
+		const schedule_id = await SchedulesService.addSchedule(req.body);
 		res.status(201).json({
-			data: result,
+			data: { ...req.body, schedule_id },
 		});
 	} catch (error) {
 		console.error(
